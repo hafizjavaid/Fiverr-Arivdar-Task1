@@ -52,6 +52,11 @@ export default {
   font-family: "Open Sans", sans-serif;
   margin-bottom: 10px;
 }
+#form #p_label,
+#form #s_label {
+  text-align: left !important;
+  font-size: 12px !important;
+}
 #form input,
 #form textarea {
   background: #f4f4f4;
@@ -59,6 +64,15 @@ export default {
   height: 50px;
   border: none;
   padding: 14px;
+}
+
+#form input::-webkit-outer-spin-button,
+#form input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+#form input[type="number"] {
+  -moz-appearance: textfield;
 }
 #form .ti-input {
   border: none;
@@ -104,6 +118,11 @@ export default {
   font-size: 16px;
   color: rgba(0, 0, 0, 0.25);
 }
+#form .custom-control-label {
+  font-size: 16px;
+  font-family: "Open Sans", sans-serif;
+}
+
 #modal-1 .modal-footer {
   justify-content: center;
 }

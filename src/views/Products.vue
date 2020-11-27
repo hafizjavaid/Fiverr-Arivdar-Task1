@@ -74,11 +74,13 @@ export default {
         this.deleteIndex = -1;
       }
     },
+    // this.$router.push();
     update(product, i) {
       this.save = false;
+      console.log(i);
       this.$router.push(
-        { name: "Product", params: { edit: this.save, product, index: i } },
-        { path: "/product/new" }
+        { path: "/product/" + product.id + "/edit" },
+        { params: { id: product.id } }
       );
     },
 
@@ -108,10 +110,9 @@ export default {
   height: 200px;
 }
 .s_product img {
-  /* max-width: 100%; */
   width: 100%;
-  height: 100%;
-  object-fit: contain;
+  height: 200px;
+  object-fit: cover;
 }
 .product_content {
   padding-left: 20px;

@@ -3,7 +3,7 @@
     <!-- Form Code -->
     <b-container>
       <div class="main_form">
-        <h3 class="text-center">Create Product</h3>
+        <h3 class="text-center">{{ save ? "Create" : "Update" }} Product</h3>
         <b-row>
           <b-col>
             <b-form id="form">
@@ -18,6 +18,7 @@
                       :class="{ 'is-invalid': validationStatus($v.form.pName) }"
                       placeholder="Product name"
                       autocomplete="off"
+                      v-on:keypress="isLetter($event)"
                     ></b-form-input>
                     <b-form-invalid-feedback
                       v-if="!$v.form.pName.required"
@@ -36,6 +37,7 @@
                     <b-form-textarea
                       id="input-2"
                       type="text"
+                      v-on:keypress="isLetter($event)"
                       v-model="$v.form.pDescription.$model"
                       :class="{
                         'is-invalid': validationStatus($v.form.pDescription),
@@ -108,48 +110,23 @@
               <b-row>
                 <b-col>
                   <b-form-group label="Product Description" label-for="input-5">
-                    <b-form-textarea
-                      id="input-5"
-                      type="text"
-                      v-model="$v.form.DDescription.$model"
-                      :class="{
-                        'is-invalid': validationStatus($v.form.DDescription),
-                      }"
-                      placeholder="Product description"
-                      no-resize
-                      autocomplete="off"
-                    ></b-form-textarea>
-                    <b-form-invalid-feedback
-                      v-if="!$v.form.DDescription.required"
-                      class="invalid-feedback text-left mt-3"
-                    >
-                      The Product Description is required
-                    </b-form-invalid-feedback>
+                    <vue-editor
+                      v-model="form.DDescription"
+                      :editor-toolbar="customToolbar"
+                    />
                   </b-form-group>
                 </b-col>
               </b-row>
+              <!-- form.DFeatures -->
               <!-- Single Input -->
               <!-- Single Input -->
               <b-row>
                 <b-col>
                   <b-form-group label="Features" label-for="input-5">
-                    <b-form-textarea
-                      id="input-5"
-                      type="text"
-                      v-model="$v.form.DFeatures.$model"
-                      :class="{
-                        'is-invalid': validationStatus($v.form.DFeatures),
-                      }"
-                      placeholder="Product features"
-                      no-resize
-                      autocomplete="off"
-                    ></b-form-textarea>
-                    <b-form-invalid-feedback
-                      v-if="!$v.form.DFeatures.required"
-                      class="invalid-feedback text-left mt-3"
-                    >
-                      The Product Features is required
-                    </b-form-invalid-feedback>
+                    <vue-editor
+                      v-model="form.DFeatures"
+                      :editor-toolbar="customToolbar"
+                    />
                   </b-form-group>
                 </b-col>
               </b-row>
@@ -160,7 +137,8 @@
                   <b-form-group label="Price" label-for="input-6">
                     <b-form-input
                       id="input-6"
-                      type="text"
+                      type="number"
+                      step="0.01"
                       v-model="$v.form.DPrice.$model"
                       :class="{
                         'is-invalid': validationStatus($v.form.DPrice),
@@ -229,7 +207,7 @@
                   <b-form-group label="Width" label-for="input-7">
                     <b-form-input
                       id="input-7"
-                      type="text"
+                      type="number"
                       v-model="$v.form.DWidth.$model"
                       :class="{
                         'is-invalid': validationStatus($v.form.DWidth),
@@ -254,7 +232,7 @@
                   <b-form-group label="Height" label-for="input-8">
                     <b-form-input
                       id="input-8"
-                      type="text"
+                      type="number"
                       v-model="$v.form.DHeight.$model"
                       :class="{
                         'is-invalid': validationStatus($v.form.DHeight),
@@ -279,7 +257,7 @@
                   <b-form-group label="Weight" label-for="input-8">
                     <b-form-input
                       id="input-8"
-                      type="text"
+                      type="number"
                       v-model="$v.form.DWeight.$model"
                       :class="{
                         'is-invalid': validationStatus($v.form.DWeight),
@@ -304,7 +282,8 @@
                   <b-form-group label="Shipping Price" label-for="input-8">
                     <b-form-input
                       id="input-8"
-                      type="text"
+                      type="number"
+                      step="0.01"
                       v-model="$v.form.SPrice.$model"
                       :class="{
                         'is-invalid': validationStatus($v.form.SPrice),
@@ -340,124 +319,160 @@
 
               <!-- Single Input -->
               <!-- Single Input -->
+              <!-- Variations Input-->
               <b-row>
                 <b-col>
                   <b-form-group label="Variation" label-for="input-9">
                     <div class="variations">
                       <div
-                        class="variation"
+                        class="variation v_tabs"
                         @click="addActive(1)"
                         :class="{ active: active == 1 }"
                       >
                         Color
                       </div>
                       <div
-                        class="variation"
+                        class="variation v_tabs"
                         @click="addActive(2)"
                         :class="{ active: active == 2 }"
                       >
                         Storage
                       </div>
                       <div
-                        class="variation"
+                        class="variation v_tabs"
                         @click="addActive(3)"
                         :class="{ active: active == 3 }"
                       >
-                        Stock
+                        Stock Price
                       </div>
                       <div
-                        class="variation"
+                        class="variation v_tabs"
                         @click="addActive(4)"
                         :class="{ active: active == 4 }"
                       >
-                        Price
+                        Bundles
                       </div>
                     </div>
                   </b-form-group>
                 </b-col>
               </b-row>
               <!-- Single Input -->
+
+              <!-- Variations Selected Input-->
               <b-row>
                 <b-col>
                   <b-form-group v-show="active == 1">
                     <b-form-radio
-                      v-model="variations.colorSelected"
-                      name="some-radios"
+                      v-model="tempvariations.colorSelected"
+                      name="color"
                       value="red"
                       >Red</b-form-radio
                     >
                     <b-form-radio
-                      v-model="variations.colorSelected"
-                      name="some-radios"
+                      v-model="tempvariations.colorSelected"
+                      name="color"
                       value="blue"
                       >Blue</b-form-radio
                     >
                   </b-form-group>
                   <b-form-group v-show="active == 2">
                     <b-form-radio
-                      v-model="variations.storageSelected"
-                      name="some-radios"
+                      v-model="tempvariations.storageSelected"
+                      name="storage"
                       value="permanent"
+                      :checked="tempvariations.storageSelected"
                       >Permanent</b-form-radio
                     >
                     <b-form-radio
-                      v-model="variations.storageSelected"
-                      name="some-radios"
+                      v-model="tempvariations.storageSelected"
+                      name="storage"
                       value="temporary"
+                      :checked="tempvariations.storageSelected"
                       >Temporary</b-form-radio
                     >
                   </b-form-group>
                   <b-form-group v-show="active == 3">
-                    <b-form-radio
-                      v-model="variations.stockSelected"
-                      name="some-radios"
-                      value="full"
-                      >Full</b-form-radio
-                    >
-                    <b-form-radio
-                      v-model="variations.stockSelected"
-                      name="some-radios"
-                      value="empty"
-                      >Empty</b-form-radio
-                    >
+                    <!-- <label for="" id="p_label">Price</label> -->
+                    <b-form-input
+                      v-model="tempvariations.priceSelected"
+                      placeholder="Enter Price"
+                      type="number"
+                    ></b-form-input>
+                    <br />
+                    <!-- <label for="" id="s_label">Stock</label> -->
+                    <b-form-input
+                      v-model="tempvariations.stockSelected"
+                      placeholder="Enter Your Stock"
+                      type="number"
+                    ></b-form-input>
                   </b-form-group>
                   <b-form-group v-show="active == 4">
-                    <b-form-radio
-                      v-model="variations.priceSelected"
-                      name="some-radios"
-                      value="10"
-                      >10</b-form-radio
-                    >
-                    <b-form-radio
-                      v-model="variations.priceSelected"
-                      name="some-radios"
-                      value="20"
-                      >20</b-form-radio
-                    >
+                    <b-form-input
+                      v-model="tempvariations.prize"
+                      placeholder="Enter Prize"
+                      type="number"
+                    ></b-form-input>
+                    <br />
+                    <b-form-input
+                      v-model="tempvariations.quantity"
+                      placeholder="Enter Your Quantity"
+                      type="number"
+                    ></b-form-input>
                   </b-form-group>
                 </b-col>
               </b-row>
 
+              <!-- Show tempvariations -->
               <b-row>
                 <b-col>
-                  <b-button
-                    v-if="!showTarget"
-                    class="save_btn"
-                    @click="saveVariations"
+                  <b-form-group label-for="input-10">
+                    <div
+                      v-for="(variation, i) in form.variations"
+                      :key="i"
+                      class="variations"
+                    >
+                      <div
+                        class="variation"
+                        v-if="variation.colorSelected != ''"
+                      >
+                        {{ variation.colorSelected }}
+                      </div>
+                      <div
+                        class="variation"
+                        v-if="variation.priceSelected != ''"
+                      >
+                        {{ variation.priceSelected }}
+                      </div>
+                      <div
+                        class="variation"
+                        v-if="variation.stockSelected != ''"
+                      >
+                        {{ variation.stockSelected }}
+                      </div>
+                      <div
+                        class="variation"
+                        v-if="variation.storageSelected != ''"
+                      >
+                        {{ variation.storageSelected }}
+                      </div>
+                      <div class="variation" v-if="variation.prize != ''">
+                        {{ variation.prize }}
+                      </div>
+                      <div class="variation" v-if="variation.quantity != ''">
+                        {{ variation.quantity }}
+                      </div>
+                    </div>
+                  </b-form-group>
+                </b-col>
+              </b-row>
+              <!-- STore tempvariations -->
+              <b-row>
+                <b-col>
+                  <b-button class="store_btn" @click="savetempvariations"
                     >Store</b-button
                   >
                 </b-col>
               </b-row>
-
-              <b-row v-if="showTarget">
-                <b-col>
-                  {{ variations.colorSelected }},
-                  {{ variations.priceSelected }},
-                  {{ variations.stockSelected }},
-                  {{ variations.storageSelected }}
-                </b-col>
-              </b-row>
-
               <b-row>
                 <b-col>
                   <b-button
@@ -489,10 +504,25 @@
 import { validationMixin } from "vuelidate";
 import { required } from "vuelidate/lib/validators";
 import VueTagsInput from "@johmun/vue-tags-input";
+import { VueEditor } from "vue2-editor";
 export default {
   mixins: [validationMixin],
   data() {
     return {
+      content: "<h1>Some initial content</h1>",
+      customToolbar: [
+        // [{ header: [false, 1, 2, 3, 4, 5, 6] }],
+        ["bold", "italic", "underline"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        ["image", "code-block"],
+        [
+          { align: "" },
+          { align: "center" },
+          { align: "right" },
+          { align: "justify" },
+        ],
+        [{ color: ["red", "green"] }, { background: [] }],
+      ],
       img1: require("@/assets/products/1.jpg"),
       save: true,
       editIndex: -1,
@@ -500,28 +530,30 @@ export default {
       img2: null,
       showTarget: false,
       images: [],
-      variations: {
+      tempvariations: {
         colorSelected: "",
         priceSelected: "",
         stockSelected: "",
         storageSelected: "",
+        prize: "",
+        quantity: "",
       },
-
       form: {
-        pName: "1223",
-        pDescription: "kcn",
-        DDescription: "nvdk",
-        DFeatures: "vlksn",
-        skuNumber: "kdjcvkl",
-        barCode: "adlk",
-        DHeight: "cnk",
-        DWidth: "adkvkl",
-        DPrice: "aklc",
-        DWeight: "akldf",
-        SPrice: "adflk",
+        pName: "",
+        pDescription: "",
+        DDescription: "",
+        DFeatures: "",
+        skuNumber: "",
+        barCode: "",
+        DHeight: "",
+        DWidth: "",
+        DPrice: "",
+        DWeight: "",
+        SPrice: "",
         tag: "",
         tags: ["12"],
         img: [],
+        variations: [],
       },
     };
   },
@@ -574,7 +606,9 @@ export default {
     },
   },
   components: {
+    // require
     VueTagsInput,
+    VueEditor,
   },
   methods: {
     saveForm() {
@@ -595,8 +629,7 @@ export default {
       this.form.id = this.$store.getters.getProductsLenght + 1;
       this.form.img = this.images[0];
       this.form.tags = tempTags;
-      this.form.variations = this.variations;
-      //   console.log(this.form);
+      // this.form.variations.push(tempvariations);
       this.$store.dispatch("addProduct", this.form);
 
       this.$router.push({ name: "Products" }, { path: "/products" });
@@ -608,27 +641,32 @@ export default {
       this.Products.splice(i, 1);
     },
     updateP() {
-      let id = this.$route.params.product.id;
+      let id = this.$route.params.id;
       let tempTags = [];
       for (let i = 0; i < this.form.tags.length; i++) {
-        for (let key in this.form.tags[i]) {
-          if (
-            typeof this.form.tags[i][key] == "string" ||
-            typeof this.form.tags[i][key] == "number"
-          ) {
-            tempTags.push(this.form.tags[i][key]);
+        // console.log();
+        if (typeof this.form.tags[i] == "object") {
+          for (let key in this.form.tags[i]) {
+            if (
+              typeof this.form.tags[i][key] == "string" ||
+              typeof this.form.tags[i][key] == "number"
+            ) {
+              tempTags.push(this.form.tags[i][key]);
+            }
           }
+        } else {
+          tempTags.push(this.form.tags[i]);
         }
       }
-      console.log(tempTags);
+
       this.form.tags = tempTags;
-      this.form.variations = this.variations;
+      // this.form.variations = this.variations;
       //   console.log(this.form.variations);
       let tempProduct = this.form;
       tempProduct.id = id;
       this.$store.dispatch("updateProduct", {
         product: tempProduct,
-        index: this.$route.params.index,
+        index: this.$store.getters.getIndex(this.$route.params.id),
       });
       this.$router.push({ name: "Products" }, { path: "/products" });
     },
@@ -655,20 +693,45 @@ export default {
       fileReader.readAsDataURL(files[0]);
       //   this.img2 = files[0];
     },
-    saveVariations() {
-      //   console.log(this.variations);
-      this.showTarget = true;
+    savetempvariations() {
+      // this.showTarget = true;
+      this.form.variations.push(this.tempvariations);
+      console.log(this.form.variations);
+      console.log(this.tempvariations);
+      this.tempvariations = {
+        colorSelected: "",
+        priceSelected: "",
+        stockSelected: "",
+        storageSelected: "",
+        prize: "",
+        quantity: "",
+      };
+    },
+    isLetter(e) {
+      let char = String.fromCharCode(e.keyCode);
+      if (/^[a-zA-Z ]*$/.test(char)) return true;
+      else e.preventDefault();
+    },
+    isNumber(e) {
+      let char = String.fromCharCode(e.keyCode);
+      if (/^[0-9\s]*$/.test(char)) return true;
+      else e.preventDefault();
     },
   },
+  computed: {},
   created() {
-    if (this.$route.params.product) {
-      this.form = this.$route.params.product;
-      this.variations = this.$route.params.product.variations;
-
-      let image = this.$route.params.product.img;
+    let sProduct = this.$store.getters.getProduct(this.$route.params.id);
+    if (this.$route.params.edit) {
+      this.save = true;
+    } else {
+      this.save = false;
+    }
+    if (sProduct) {
+      this.form = sProduct;
+      // this.variations = sProduct.variations;
+      let image = sProduct.img;
       this.images.push(image);
     }
-    this.save = this.$route.params.edit;
   },
 };
 </script>
@@ -698,27 +761,37 @@ export default {
 }
 .variations .variation {
   background: #aeaeae;
-  max-width: 100px;
-  height: 35px;
+  max-width: 70px;
+  height: 30px;
   color: #fff;
-  font-size: 14px;
+  font-size: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
   font-weight: bold;
   margin-right: 10px;
   width: 100%;
+  text-transform: capitalize;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+.variations .v_tabs {
+  font-weight: bold;
+  font-size: 14px;
+  max-width: 100px;
+  height: 40px;
 }
 .variations .variation.active {
   background-color: #38485f;
 }
-.save_btn {
+.save_btn,
+.store_btn {
   background-color: #38485f;
   color: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 20px auto;
+  margin: 10px auto;
   width: 100%;
   max-width: 150px;
   height: 40px;
@@ -728,6 +801,16 @@ export default {
   font-weight: bold;
   font-size: 20px;
   color: #ffffff;
+}
+.store_btn {
+  margin-top: 10px;
+  width: 100%;
+  max-width: 100px;
+  height: 30px;
+  margin-left: 0px;
+  transform: translateY(-10px);
+  font-size: 16px;
+  font-weight: normal;
 }
 .imges {
   display: grid;
@@ -752,5 +835,14 @@ export default {
   align-items: center;
   border: 1px dashed #000;
   height: 100px;
+}
+.custom-radio {
+  text-align: left;
+  font-size: 16px;
+}
+#p_label,
+#s_label {
+  text-align: left;
+  font-size: 12px;
 }
 </style>

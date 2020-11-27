@@ -29,12 +29,7 @@ export default new Vuex.Store({
           tag: "",
           tags: [],
           id: 1,
-           variations: {
-        colorSelected: "",
-        priceSelected: "",
-        stockSelected: "",
-        storageSelected: "",
-      },
+       variations: [],
         },
         {
           img: require("@/assets/products/2.jpg"),
@@ -52,12 +47,7 @@ export default new Vuex.Store({
           tag: "",
           tags: [],
           id: 2,
-           variations: {
-        colorSelected: "",
-        priceSelected: "",
-        stockSelected: "",
-        storageSelected: "",
-      },
+       variations: [],
         },
         {
           img: require("@/assets/products/3.jpg"),
@@ -75,12 +65,7 @@ export default new Vuex.Store({
           tag: "",
           tags: [],
           id: 3,
-           variations: {
-        colorSelected: "",
-        priceSelected: "",
-        stockSelected: "",
-        storageSelected: "",
-      },
+       variations: [],
         },
         {
           img: require("@/assets/products/4.jpg"),
@@ -98,12 +83,7 @@ export default new Vuex.Store({
           tag: "",
           tags: [],
           id: 4,
-           variations: {
-        colorSelected: "",
-        priceSelected: "",
-        stockSelected: "",
-        storageSelected: "",
-      },
+       variations: [],
         },
         {
           img: require("@/assets/products/5.jpg"),
@@ -121,12 +101,7 @@ export default new Vuex.Store({
           tag: "",
           tags: [],
           id: 5,
-           variations: {
-        colorSelected: "",
-        priceSelected: "",
-        stockSelected: "",
-        storageSelected: "",
-      },
+       variations: [],
         },
       ],
   },
@@ -179,7 +154,22 @@ export default new Vuex.Store({
     },
     getProductsLenght(state) {
       return state.products.length;
+    },      
+    getProduct(state) {
+      return (id) => {
+        return state.products.find(product => {
+          return product.id == id;
+          })
+        }
+    },
+    getIndex(state) {
+      return (id) => {
+        return state.products.findIndex(product => {
+          return product.id == id;
+          })
+        }
     }
+
   },
   actions: {
 
